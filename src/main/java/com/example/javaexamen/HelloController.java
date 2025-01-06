@@ -21,15 +21,7 @@ public class HelloController {
     private Button btnGestionCls3;
     @FXML
     public void handleGestioncls1(){
-//try {
-//             FXMLLoader loader = new FXMLLoader(getClass().getResource("cls1.fxml"));
-//             AnchorPane profPane = loader.load();
-//             Scene scene = new Scene(profPane,800,600);
-//             Stage stage = (Stage) btnGestioncls1.getScene().getWindow();
-//             stage.setScene(scene);
-//             stage.show();
-//         } catch (IOException e) {
-//             e.printStackTrace();}
+
 
     }
     @FXML

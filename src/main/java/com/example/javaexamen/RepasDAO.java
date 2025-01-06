@@ -74,7 +74,7 @@ public class RepasDAO {
 
     // Récupérer le plat principal d'un repas par son ID
     private PlatPrincipal getPlatPrincipalById(int platPrincipalId) {
-        String query = "SELECT * FROM PlatPrincipal WHERE platPrincipalId = ?";
+        String query = "SELECT * FROM platPrincipal WHERE platPrincipal_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, platPrincipalId);
             ResultSet rs = stmt.executeQuery();
@@ -114,15 +114,15 @@ public class RepasDAO {
     // READ - Récupérer tous les repas
     public List<Repas> getAllRepas() {
         List<Repas> repasList = new ArrayList<>();
-        String query = "SELECT * FROM Repas";
+        String query = "SELECT * FROM repas";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Repas repas = new Repas(
-                        rs.getInt("repasId"),
+                        rs.getInt("repas_id"),
                         rs.getBigDecimal("prix"),
-                        getPlatPrincipalById(rs.getInt("platPrincipalId")),
-                        getSupplementsForRepas(rs.getInt("repasId"))
+                        getPlatPrincipalById(rs.getInt("platPrincipal_id")),
+                        getSupplementsForRepas(rs.getInt("repas_id"))
                 );
                 repasList.add(repas);
             }
@@ -134,7 +134,7 @@ public class RepasDAO {
 
     // UPDATE - Mettre à jour un repas
     public boolean updateRepas(Repas repas) {
-        String query = "UPDATE Repas SET prix = ?, platPrincipalId = ? WHERE repasId = ?";
+        String query = "UPDATE repas SET prix = ?, platPrincipal_id = ? WHERE repas_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setBigDecimal(1, repas.getPrix());
             stmt.setInt(2, repas.getPlatPrincipal().getId());
@@ -153,8 +153,8 @@ public class RepasDAO {
 
     // Mettre à jour les suppléments associés à un repas
     private void updateSupplementsForRepas(int repasId, List<Supplement> supplements) {
-        String deleteQuery = "DELETE FROM RepasSupplement WHERE repasId = ?";
-        String insertQuery = "INSERT INTO RepasSupplement (repasId, supplementId) VALUES (?, ?)";
+        String deleteQuery = "DELETE FROM repas_supplement WHERE repas_id = ?";
+        String insertQuery = "INSERT INTO repas_supplement (repas_id, supplement_id) VALUES (?, ?)";
 
         try (PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery);
              PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
@@ -178,7 +178,7 @@ public class RepasDAO {
 
     // DELETE - Supprimer un repas
     public boolean deleteRepas(int repasId) {
-        String query = "DELETE FROM Repas WHERE repasId = ?";
+        String query = "DELETE FROM repas WHERE repas_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, repasId);
             int rowsAffected = stmt.executeUpdate();
@@ -195,7 +195,7 @@ public class RepasDAO {
 
     // Supprimer les suppléments associés à un repas
     private void deleteSupplementsForRepas(int repasId) {
-        String query = "DELETE FROM RepasSupplement WHERE repasId = ?";
+        String query = "DELETE FROM repas_supplement WHERE repas_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, repasId);
             stmt.executeUpdate();

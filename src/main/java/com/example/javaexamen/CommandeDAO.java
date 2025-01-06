@@ -15,7 +15,7 @@ public class CommandeDAO {
 
     // CREATE - Ajouter une commande
     public boolean addCommande(Commande commande) {
-        String query = "INSERT INTO commande (clientId, date_commande, total) VALUES (?, ?, ?)";
+        String query = "INSERT INTO commande (client_id, date_commande, total) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, commande.getClient().getClientId());
             stmt.setDate(2, new java.sql.Date(commande.getDateCommande().getTime()));
@@ -55,15 +55,15 @@ public class CommandeDAO {
 
     // READ - Récupérer une commande par son ID
     public Commande getCommandeById(int commandeId) {
-        String query = "SELECT * FROM Commande WHERE commandeId = ?";
+        String query = "SELECT * FROM commande WHERE commande_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, commandeId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 Commande commande = new Commande();
-                commande.setCommandeId(rs.getInt("commandeId"));
-                commande.setClient(getClientById(rs.getInt("clientId")));
-                commande.setDatecommande(rs.getDate("datecommande"));
+                commande.setCommandeId(rs.getInt("commande_id"));
+                commande.setClient(getClientById(rs.getInt("client_id")));
+                commande.setDatecommande(rs.getDate("date_commande"));
                 commande.setRepas(getRepasForCommande(commandeId));
                 commande.setTotal(commande.calculerTotal());
                 return commande;
@@ -76,7 +76,7 @@ public class CommandeDAO {
 
     // Récupérer un client par son ID
     private Client getClientById(int clientId) {
-        String query = "SELECT * FROM Client WHERE clientId = ?";
+        String query = "SELECT * FROM client WHERE client_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, clientId);
             ResultSet rs = stmt.executeQuery();
@@ -96,18 +96,18 @@ public class CommandeDAO {
     // Récupérer les repas associés à une commande
     private List<Repas> getRepasForCommande(int commandeId) {
         List<Repas> repasList = new ArrayList<>();
-        String query = "SELECT r.* FROM Repas r " +
-                "JOIN CommandeRepas cr ON r.repasId = cr.repasId " +
-                "WHERE cr.commandeId = ?";
+        String query = "SELECT r.* FROM repas r " +
+                "JOIN commande_repas cr ON r.repasId = cr.repas_id " +
+                "WHERE cr.commande_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, commandeId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Repas repas = new Repas(
-                        rs.getInt("repasId"),
+                        rs.getInt("repas_id"),
                         rs.getBigDecimal("prix"),
-                        getPlatPrincipalById(rs.getInt("platPrincipalId")),
-                        getSupplementsForRepas(rs.getInt("repasId"))
+                        getPlatPrincipalById(rs.getInt("platPrincipal_id")),
+                        getSupplementsForRepas(rs.getInt("repas_id"))
                 );
                 repasList.add(repas);
             }
@@ -119,7 +119,7 @@ public class CommandeDAO {
 
     // Récupérer le plat principal d'un repas
     private PlatPrincipal getPlatPrincipalById(int platPrincipalId) {
-        String query = "SELECT * FROM PlatPrincipal WHERE platPrincipalId = ?";
+        String query = "SELECT * FROM platPrincipal WHERE platPrincipal_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, platPrincipalId);
             ResultSet rs = stmt.executeQuery();
@@ -135,9 +135,9 @@ public class CommandeDAO {
     // Récupérer les suppléments associés à un repas
     private List<Supplement> getSupplementsForRepas(int repasId) {
         List<Supplement> supplements = new ArrayList<>();
-        String query = "SELECT s.* FROM Supplement s " +
-                "JOIN RepasSupplement rs ON s.supplementId = rs.supplementId " +
-                "WHERE rs.repasId = ?";
+        String query = "SELECT s.* FROM supplement s " +
+                "JOIN RepasSupplement rs ON s.supplementId = rs.supplement_id " +
+                "WHERE rs.repas_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, repasId);
             ResultSet rs = stmt.executeQuery();
@@ -155,15 +155,15 @@ public class CommandeDAO {
     // READ - Récupérer toutes les commandes
     public List<Commande> getAllCommandes() {
         List<Commande> commandesList = new ArrayList<>();
-        String query = "SELECT * FROM Commande";
+        String query = "SELECT * FROM commande";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Commande commande = new Commande();
-                commande.setCommandeId(rs.getInt("commandeId"));
-                commande.setClient(getClientById(rs.getInt("clientId")));
-                commande.setDatecommande(rs.getDate("datecommande"));
-                commande.setRepas(getRepasForCommande(rs.getInt("commandeId")));
+                commande.setCommandeId(rs.getInt("commande_id"));
+                commande.setClient(getClientById(rs.getInt("client_id")));
+                commande.setDatecommande(rs.getDate("date-commande"));
+                commande.setRepas(getRepasForCommande(rs.getInt("commande_id")));
                 commande.setTotal(commande.calculerTotal());
                 commandesList.add(commande);
             }
