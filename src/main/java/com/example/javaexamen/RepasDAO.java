@@ -14,7 +14,7 @@ public class RepasDAO {
 
     // CREATE - Ajouter un repas
     public boolean addRepas(Repas repas) {
-        String query = "INSERT INTO repas (prix, platPrincipalId) VALUES (?, ?)";
+        String query = "INSERT INTO repas (prix, plat_id) VALUES (?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setBigDecimal(1, repas.getPrix());
             stmt.setInt(2, repas.getPlatPrincipal().getId());
@@ -38,7 +38,7 @@ public class RepasDAO {
 
     // Ajouter les suppléments à un repas
     private void addSupplementsToRepas(int repasId, List<Supplement> supplements) {
-        String query = "INSERT INTO repas_supplement (repasId, supplementId) VALUES (?, ?)";
+        String query = "INSERT INTO repas_supplement (repas_id, supplement_id) VALUES (?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             for (Supplement supplement : supplements) {
                 stmt.setInt(1, repasId);
@@ -53,15 +53,15 @@ public class RepasDAO {
 
     // READ - Récupérer un repas par son ID
     public Repas getRepasById(int repasId) {
-        String query = "SELECT * FROM Repas WHERE repasId = ?";
+        String query = "SELECT * FROM repas WHERE repas_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, repasId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 Repas repas = new Repas(
-                        rs.getInt("repasId"),
+                        rs.getInt("repas_id"),
                         rs.getBigDecimal("prix"),
-                        getPlatPrincipalById(rs.getInt("platPrincipalId")),
+                        getPlatPrincipalById(rs.getInt("plat_id")),
                         getSupplementsForRepas(repasId)
                 );
                 return repas;
@@ -80,9 +80,9 @@ public class RepasDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new PlatPrincipal(
-                        rs.getInt("platPrincipalId"),
+                        rs.getInt("plat_id"),
                         rs.getString("nom"),
-                        rs.getBigDecimal("prix")
+                        rs.getBigDecimal("prix"),null,null
                 );
             }
         } catch (SQLException e) {
@@ -94,17 +94,15 @@ public class RepasDAO {
     // Récupérer les suppléments associés à un repas
     private List<Supplement> getSupplementsForRepas(int repasId) {
         List<Supplement> supplements = new ArrayList<>();
-        String query = "SELECT s.* FROM Supplement s " +
-                "JOIN RepasSupplement rs ON s.supplementId = rs.supplementId " +
-                "WHERE rs.repasId = ?";
+        String query = "SELECT s.* FROM supplement s " +
+                "JOIN repas_supplement rs ON s.supplement_id = rs.supplement_id " +
+                "WHERE rs.repas_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, repasId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                Supplement supplement = new Supplement();
-                supplement.setSupplementId(rs.getInt("supplementId"));
-                supplement.setNom(rs.getString("nom"));
-                supplement.setPrix(rs.getBigDecimal("prix"));
+                Supplement supplement = new Supplement(rs.getInt("supplement_id"),rs.getString("nom"),rs.getString("description"),rs.getBigDecimal("prix"));
+
                 supplements.add(supplement);
             }
         } catch (SQLException e) {
@@ -139,7 +137,7 @@ public class RepasDAO {
         String query = "UPDATE Repas SET prix = ?, platPrincipalId = ? WHERE repasId = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setBigDecimal(1, repas.getPrix());
-            stmt.setInt(2, repas.getPlatPrincipal().getPlatPrincipalId());
+            stmt.setInt(2, repas.getPlatPrincipal().getId());
             stmt.setInt(3, repas.getRepasId());
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
