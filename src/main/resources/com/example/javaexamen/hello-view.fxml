@@ -5,12 +5,14 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.javaexamen.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.javaexamen.HelloController">
+    <Button fx:id="btnGestioncls1" layoutX="398.0" onAction="#handleGestioncls1" layoutY="166.0"  text="Gérer les client" />
+
+    <Button fx:id="btnGestionCls2" layoutX="227.0" onAction="#handleGestioncls2" layoutY="166.0"  text="Gérer les commande" />
+
+    <Button fx:id="btnGestionCls3" layoutX="37.0" onAction="#handleGestioncls3" layoutY="166.0"  text="Gérer les plats" />
+
+</AnchorPane>
+
